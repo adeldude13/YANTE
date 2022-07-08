@@ -42,5 +42,7 @@ void Editor::input() {
 		interface->cursor_move_curr(-1, 0);
 	} else if(c == 'l') {
 		interface->cursor_move_curr(1, 0);
+	} else {
+		interface->add(c);
 	}
 }

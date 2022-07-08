@@ -14,6 +14,7 @@ class Interface {
 		void close();
 		void cursor_move(int, int);
 		void cursor_move_curr(int, int);
+		void renderbuf();
 		void write_buffer(std::vector<std::string>);
 		char input();
 	private:
