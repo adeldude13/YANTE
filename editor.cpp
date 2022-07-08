@@ -5,6 +5,7 @@
 
 Editor::Editor() {
 	this->interface = new Interface;
+	buffer.push_back("");
 }
 
 Editor::Editor(std::string filename) {
@@ -22,11 +23,24 @@ Editor::Editor(std::string filename) {
 		} else {
 			buffer[b_c] += content[i];
 		}
-		i++;
 	}
 	interface->write_buffer(buffer);
 }
 
 void Editor::exit() {
 	interface->close();
+}
+
+void Editor::input() {
+	char c = interface->input();
+	// TOOD, make it work with arrow chars
+	if(c == 'j') {
+		interface->cursor_move_curr(0, 1);
+	} else if(c == 'k') {
+		interface->cursor_move_curr(0, -1);
+	} else if(c == 'h') {
+		interface->cursor_move_curr(-1, 0);
+	} else if(c == 'l') {
+		interface->cursor_move_curr(1, 0);
+	}
 }

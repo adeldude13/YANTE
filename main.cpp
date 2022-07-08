@@ -3,7 +3,7 @@
 
 int main() {
 	Editor editor("file.txt");
-	getch();
+	while(1) editor.input();	
 	editor.exit();
 	return 0;
 }

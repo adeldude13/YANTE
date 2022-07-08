@@ -8,7 +8,8 @@ class Editor {
 	public:
 		Editor();
 		Editor(std::string);
-		void exit();	
+		void input();
+		void exit();
 	private:
 		std::vector<std::string> buffer;
 		Interface *interface;

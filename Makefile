@@ -6,7 +6,7 @@ out := main
 args := -lncurses -O0 -ggdb3 -Wall -Wextra -o $(out)
 
 main: $(files)
-	$(CC) $(args) $(cfiles) && ./$(out)
+	$(CC) $(args) $(cfiles) 
 
 clean:
 	rm $(out)
