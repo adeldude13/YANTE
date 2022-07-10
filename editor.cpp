@@ -1,48 +1,62 @@
 #include "editor.hpp"
-#include <sstream>
-#include <iostream>
-#include <fstream>
+#include <ncurses.h>
+#include <string>
 
 Editor::Editor() {
-	this->interface = new Interface;
-	buffer.push_back("");
+	this->init();
 }
 
-Editor::Editor(std::string filename) {
-	this->interface = new Interface;
-	std::ifstream file(filename);
-	std::stringstream buffer_str;
-	buffer_str << file.rdbuf();
-	std::string content = buffer_str.str();
-	int b_c = 0;
-	buffer.push_back("");
-	for(uint64_t i=0; i<content.size();i++) {
-		if(content[i] == '\n') {
-			buffer.push_back("");
-			b_c++;
+Editor::Editor(std::string data) {
+	this->init();
+	int curr = 0;
+	for(std::size_t i = 0; i<data.size();i++) {
+		if(buffer.values.size() == (unsigned int)curr) {
+			buffer.values.push_back("");
+		}
+		if(data[i] == '\n') {
+			curr++;
 		} else {
-			buffer[b_c] += content[i];
+			buffer.values[curr] += data[i];
 		}
 	}
-	interface->write_buffer(buffer);
+	this->render();
+}
+
+void Editor::init() {
+	initscr();
+	cbreak();
+	noecho();
+	keypad(stdscr, 0);
 }
 
 void Editor::exit() {
-	interface->close();
+	endwin();
 }
 
-void Editor::input() {
-	char c = interface->input();
-	// TOOD, make it work with arrow chars
-	if(c == 'j') {
-		interface->cursor_move_curr(0, 1);
-	} else if(c == 'k') {
-		interface->cursor_move_curr(0, -1);
-	} else if(c == 'h') {
-		interface->cursor_move_curr(-1, 0);
-	} else if(c == 'l') {
-		interface->cursor_move_curr(1, 0);
-	} else {
-		interface->add(c);
+void Editor::render() {
+	for(std::size_t i = 0; i<buffer.values.size();i++) {
+		for(std::size_t j = 0; j<buffer.values[i].size();j++) {
+			mvaddch(i, j, buffer.values[i][j]);	
+		}
 	}
+}
+
+void Editor::update() {
+#define C_MOVE(a, b) this->move_cursor(a, b); break;
+	char ch = (char)getch();
+	switch(ch) {
+		case 'j': // move one step down
+			C_MOVE(0, 1);
+		case 'k': // move one step up
+			C_MOVE(0, -1);
+		case 'l': // move one step right
+			C_MOVE(1, 0);
+		case 'h': // move one step left
+			C_MOVE(-1, 0);
+	}
+
+}
+
+void Editor::move_cursor(int x, int y) {
+
 }

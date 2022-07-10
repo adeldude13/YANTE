@@ -1,18 +1,18 @@
 #ifndef EDITOR_HPP
 #define EDITOR_HPP
 
-#include <vector>
-#include "ui.hpp"
+#include <string>
+#include "buffer.hpp"
 
 class Editor {
 	public:
 		Editor();
 		Editor(std::string);
-		void input();
-		void exit();
+		void init(), exit();
+		void render(), update();
+		void move_cursor(int, int);
 	private:
-		std::vector<std::string> buffer;
-		Interface *interface;
+		Buffer buffer;
 };
 
 

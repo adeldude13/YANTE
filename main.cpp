@@ -2,8 +2,7 @@
 #include <ncurses.h>
 
 int main() {
-	Editor editor("file.txt");
-	while(1) editor.input();	
+	Editor editor("Lmao Im Too Good\n+ratio");
+	getch();	
 	editor.exit();
-	return 0;
 }
