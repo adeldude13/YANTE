@@ -1,4 +1,4 @@
-CC := clang++
+CC := g++
 cfiles := main.cpp editor.cpp
 hfiles :=	editor.hpp buffer.hpp 
 files := $(cfiles) $(hfiles) Makefile

@@ -2,7 +2,7 @@
 #include <ncurses.h>
 
 int main() {
-	Editor editor("Lmao Im Too Good\n+ratio");
+	Editor editor("Lmao Im Too Good Lmao Im Too Good Lmao Im Too Good Lmao Im Too Good Lmao Im Too Good Lmao Im Too Good Lmao Im Too Good Lmao Im Too Good Lmao Im Too Good Lmao Im Too Good Lmao Im Too Good Lmao Im Too Good Lmao Im Too Good Lmao Im Too Good Lmao Im Too Good Lmao Im Too Good Lmao Im Too Good Lmao Im Too Good Lmao Im Too Good Lmao Im Too Good Lmao Im Too Good Lmao Im Too Good Lmao Im Too Good\nnew line");
 	getch();	
 	editor.exit();
 }

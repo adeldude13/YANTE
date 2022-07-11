@@ -1,6 +1,7 @@
 #include "editor.hpp"
 #include <ncurses.h>
 #include <string>
+#include <iostream>
 
 Editor::Editor() {
 	this->init();
@@ -27,6 +28,7 @@ void Editor::init() {
 	cbreak();
 	noecho();
 	keypad(stdscr, 0);
+	getmaxyx(stdscr, height, width);
 }
 
 void Editor::exit() {
@@ -34,11 +36,24 @@ void Editor::exit() {
 }
 
 void Editor::render() {
+	int curr_y = 0;
+	int curr_x = 0;
+	int times = 0;
 	for(std::size_t i = 0; i<buffer.values.size();i++) {
+		curr_x = 0;
 		for(std::size_t j = 0; j<buffer.values[i].size();j++) {
-			mvaddch(i, j, buffer.values[i][j]);	
+			if(curr_x >= width) {
+				times++;
+				curr_y++;
+				curr_x = 0;
+			}
+			mvaddch(curr_y, curr_x, buffer.values[i][j]);	
+			curr_x++;
 		}
+		curr_y++;
 	}
+END:
+	return;
 }
 
 void Editor::update() {

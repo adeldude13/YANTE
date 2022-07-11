@@ -13,6 +13,7 @@ class Editor {
 		void move_cursor(int, int);
 	private:
 		Buffer buffer;
+		int width, height;
 };
 
 
