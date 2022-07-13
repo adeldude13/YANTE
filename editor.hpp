@@ -11,9 +11,11 @@ class Editor {
 		void init(), exit();
 		void render(), update();
 		void move_cursor(int, int);
+		int moveToLine();
 	private:
 		Buffer buffer;
 		int width, height;
+		int global_y, global_x = 0;
 };
 
 
