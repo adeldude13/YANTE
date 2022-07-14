@@ -11,7 +11,7 @@ class Editor {
 		void init(), exit();
 		void render(), update();
 		void move_cursor(int, int);
-		int moveToLine();
+		int moveToLine(bool);
 	private:
 		Buffer buffer;
 		int width, height;

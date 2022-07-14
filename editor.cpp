@@ -14,13 +14,14 @@ Editor::Editor(std::string data) {
 	this->init();
 	int curr = 0;
 	for(std::size_t i = 0; i<data.size();i++) {
-		if(buffer.values.size() == (unsigned int)curr) {
-			buffer.values.push_back("");
+		if(buffer.lines.size() == (unsigned int)curr) {
+			Line l;
+			buffer.lines.push_back(l);
 		}
 		if(data[i] == '\n') {
 			curr++;
 		} else {
-			buffer.values[curr] += data[i];
+			buffer.lines[curr].value += data[i];
 		}
 	}
 	this->render();
@@ -44,19 +45,19 @@ void Editor::exit() {
 void Editor::render() {
 	int curr_y = 0;
 	int curr_x = 0;
-	int times = 0;
-	for(std::size_t i = 0; i<buffer.values.size();i++) {
+	for(std::size_t i = 0; i<buffer.lines.size();i++) {
 		curr_x = 0;
-		for(std::size_t j = 0; j<buffer.values[i].size();j++) {
+		for(int j = 0; j<buffer.lines[i].size();j++) {
 			if(curr_x >= width) {
-				times++;
+				buffer.lines[i].row++;
 				curr_y++;
 				curr_x = 0;
 			}
-			mvaddch(curr_y, curr_x, buffer.values[i][j]);	
+			mvaddch(curr_y, curr_x, buffer.lines[i].value[j]);	
 			curr_x++;
 		}
 		curr_y++;
+		buffer.lines[i].row++;
 	}
 }
 
@@ -74,45 +75,21 @@ void Editor::update() {
 			C_MOVE(-1, 0);
 	}
 }
-
+// pos = right, down
+// neg = left, up
 void Editor::move_cursor(int x, int y) {
-
-	int curr_x, curr_y;
+	if(y == -1 && global_y == 0) return;
+	if(y == 1 && global_y >= (int)buffer.lines.size()-1) return;
+	int curr_y, curr_x;
 	getyx(stdscr, curr_y, curr_x);
-	if((std::size_t)(global_x + x) < buffer.values[global_y].size()) {
-		
-		if(curr_x + x >= width) 
-		{
-			move(curr_y+1, 0);
-		} 
-		else if(curr_x + x < 0 && global_x != 0) 
-		{
-			move(curr_y-1, width-1);
-		} 
-		else 
-		{
-			move(curr_y, curr_x + x);
+	if(y != 0) {
+		if(y == -1) {
+			global_y--;
+			curr_y += -(buffer.lines[global_y].row);
+		} else {
+			curr_y += buffer.lines[global_y].row;
+			global_y++;
 		}
-		global_x += x;
-#ifdef DEBUG
-		getyx(stdscr, curr_y, curr_x);
-		move(height-1, width/2);
-		printw("                                                           ");
-		move(height-1, width/2);
-		printw("gx: %i cx: %i", global_x, curr_x);
-		move(curr_y, curr_x);
-#endif
-
-	} else {
-		y++;
-	}
-
-}
-
-int Editor::moveToLine() { 
-	int USELESS, y;
-	getyx(stdscr, USELESS, y);
-	USELESS++;
-	int jump = round(buffer.values[y].size() / width);
-	return jump;
+	} 
+	move(curr_y, curr_x);
 }
