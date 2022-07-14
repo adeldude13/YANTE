@@ -15,6 +15,7 @@ class Editor {
 	private:
 		Buffer buffer;
 		int width, height;
+		int rows_passed = 0;
 		int global_y, global_x = 0;
 };
 
