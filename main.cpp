@@ -1,8 +1,19 @@
 #include "editor.hpp"
-#include <ncurses.h>
+#include <fstream>
+#include <sstream>
+#include <iostream>
 
-int main() {
-	Editor editor("Some Text Im Writing Because I want to Test My stupid text editor that nobody will ever use haha this is cool very cool very amazing i love it so much fuck windows Linux FTWWW!!Some Text Im Writing Because I want to Test My stupid text editor that nobody will ever use haha this is cool very cool very amazing i love it so much fuck windows Linux FTWWW!!\nnewline this ;alksdfj;ljkjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj\nas;dfasdf");
-	while(1) { editor.update();	}
+int main(int argc, char **argv) {
+	/* if(argc != 2) {
+		std::cout << argv[0] << " {file name}";
+		return 1;
+	} */
+	// std::ifstream file(argv[1]);
+	std::ifstream file("file.txt");
+	std::stringstream str;
+	str << file.rdbuf();
+	Editor editor(str.str());
+	while(1) editor.update();
 	editor.exit();
+	return 0;
 }

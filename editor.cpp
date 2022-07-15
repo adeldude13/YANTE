@@ -34,7 +34,6 @@ void Editor::init() {
 	noecho();
 	keypad(stdscr, TRUE);
 	getmaxyx(stdscr, height, width);
-	global_y = 0;
 }
 
 
@@ -43,26 +42,29 @@ void Editor::exit() {
 }
 
 void Editor::render() {
-	int curr_y = 0;
-	int curr_x = 0;
-	for(std::size_t i = 0; i<buffer.lines.size();i++) {
-		curr_x = 0;
-		for(int j = 0; j<buffer.lines[i].size();j++) {
-			if(curr_x >= width) {
-				buffer.lines[i].row++;
-				curr_y++;
-				curr_x = 0;
-			}
-			mvaddch(curr_y, curr_x, buffer.lines[i].value[j]);	
-			curr_x++;
+	clear();
+	for(int i=v; i<(int)buffer.lines.size();i++) {
+		if(i >= height+v) {
+			goto END;
 		}
-		curr_y++;
-		buffer.lines[i].row++;
+		for(int j=h; j<buffer.lines[i].size();j++) {
+			if(j < width+h) {
+				mvaddch(i-v, j-h, buffer.lines[i].value[j]);
+			}
+		}
 	}
+#ifdef DEBUG
+	move(height-1, width/2);
+	printw("														");
+	move(height-1, width/2);
+	printw("Y:%i X:%i", posy, posx);
+#endif
+END:
+	move(posy, posx);
 }
 
 void Editor::update() {
-#define C_MOVE(a, b) this->move_cursor(a, b); break;
+#define C_MOVE(a, b) this->move_cursor(a, b); return;
 	int ch = getch();
 	switch(ch) {
 		case KEY_DOWN:// move one step down
@@ -75,62 +77,33 @@ void Editor::update() {
 			C_MOVE(-1, 0);
 	}
 }
+
 // pos = right, down
 // neg = left, up
 void Editor::move_cursor(int x, int y) {
-	if(y == -1 && global_y == 0) return;
-	if(y == 1 && global_y >= (int)buffer.lines.size()-1) return;
-	if(x == -1 && global_x == 0) return;
-	if(x == 1 && global_x >= (int)buffer.lines[global_y].size()) return;
-	int curr_y, curr_x;
-	getyx(stdscr, curr_y, curr_x);
-	if(y != 0) {
-		curr_y -= rows_passed;
-		if(y == -1) {
-			global_y--;
-			curr_y += -(buffer.lines[global_y].row);
+
+	if(x != 0) {
+		if(posx + x + h >= (int)buffer.lines[posy].size()) return;
+		if(posx + x == -1 && h > 0) h--;
+		if(posx + x == -1) return;
+		if(posx+x >= width) {
+			h++;
 		} else {
-			curr_y += buffer.lines[global_y].row;
-			global_y++;
+			posx += x;
 		}
-		global_x = 0;	
-		curr_x = 0;
-		rows_passed = 0;
-	} else {
-		if(x == -1) {
-			if(curr_x == 0) {
-				curr_x = width-1;
-				rows_passed = 0;
-				curr_y--;
-			} else {
-				curr_x--;
-			}
-			global_x--;
-		} else {
-			if(curr_x >= width-1) {
-				rows_passed++;	
-				curr_x = 0;
-				curr_y++;
-			} else {
-				curr_x++;
-			}
-			global_x++;
+	} else if(y != 0) {
+		if(posy + y + v >= (int)buffer.lines.size()) return;
+		if(posy + y == -1 && v > 0) v--;
+		if(posy + y == -1) return;
+		posy += y;
+		if(posy >= height) {
+			v++;
+		}
+
+		if(posx >= buffer.lines[posy].size()) {
+			posx = buffer.lines[posy].size()-1;
+			if(posx == -1) posx = 0;
 		}
 	}
-
-#ifdef DEBUG
-	move(height-1, 1);
-	printw(" 																");
-	move(height-1, 1);
-	printw("gx: %i cx: %i", global_x, curr_x);
-	move(height-1, width-15);
-	printw(" 																");
-	move(height-1, width-15);
-	printw("gy: %i cy: %i", global_y, curr_y);
-	// move(height-1, width/2);
-	// printw(" 														 		");
-	// move(height-1, width/2);
-	// printw("rows_passed: %i", rows_passed);
-#endif
-	move(curr_y, curr_x);
+	this->render();
 }

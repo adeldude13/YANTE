@@ -12,11 +12,12 @@ class Editor {
 		void render(), update();
 		void move_cursor(int, int);
 		int moveToLine(bool);
+		void loop();
 	private:
 		Buffer buffer;
 		int width, height;
-		int rows_passed = 0;
-		int global_y, global_x = 0;
+		int h, v = 0;
+		int posx=0, posy = 0;
 };
 
 
