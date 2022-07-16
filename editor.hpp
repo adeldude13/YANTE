@@ -15,8 +15,9 @@ class Editor {
 		void loop();
 	private:
 		Buffer buffer;
+		int global_y = 0;
 		int width, height;
-		int h, v = 0;
+		int h=0, v = 0;
 		int posx=0, posy = 0;
 };
 

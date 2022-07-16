@@ -57,7 +57,7 @@ void Editor::render() {
 	move(height-1, width/2);
 	printw("														");
 	move(height-1, width/2);
-	printw("Y:%i X:%i", posy, posx);
+	printw("X:%i Y:%i H:%i V:%i", posx, posy, h, v);
 #endif
 END:
 	move(posy, posx);
@@ -84,25 +84,32 @@ void Editor::move_cursor(int x, int y) {
 
 	if(x != 0) {
 		if(posx + x + h >= (int)buffer.lines[posy].size()) return;
-		if(posx + x == -1 && h > 0) h--;
-		if(posx + x == -1) return;
+		if(posx + x == -1 && h == 0) return;
 		if(posx+x >= width) {
 			h++;
+		} else if(posx == 0 && x == -1 && h >= 1) {
+			h--;
 		} else {
 			posx += x;
 		}
 	} else if(y != 0) {
-		if(posy + y + v >= (int)buffer.lines.size()) return;
-		if(posy + y == -1 && v > 0) v--;
-		if(posy + y == -1) return;
-		posy += y;
-		if(posy >= height) {
+		if(global_y >= (int)buffer.lines.size()-1 && y == 1) return;
+		if(global_y == 0 && y == -1) return;
+		if(posy >= height-1 && y == 1) {
 			v++;
+			global_y += 1;
+		} else if(posy == 0 && y == -1 && v > 0) {
+			v--;	
+			global_y -= 1;
+		} else {
+			posy += y;
+			global_y += y;
 		}
-
-		if(posx >= buffer.lines[posy].size()) {
-			posx = buffer.lines[posy].size()-1;
-			if(posx == -1) posx = 0;
+		while(h >= buffer.lines[posy].size() && h != 0) {
+			h--;
+		}
+		if(posx+h >= buffer.lines[posy].size()) {
+			posx = buffer.lines[posy].size()-h-1;
 		}
 	}
 	this->render();
