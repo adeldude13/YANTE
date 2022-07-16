@@ -24,6 +24,7 @@ Editor::Editor(std::string data) {
 			buffer.lines[curr].value += data[i];
 		}
 	}
+	this->status();
 	this->render();
 	move(0, 0);
 }
@@ -34,11 +35,29 @@ void Editor::init() {
 	noecho();
 	keypad(stdscr, TRUE);
 	getmaxyx(stdscr, height, width);
+	height-=1; // for the status
+	set_escdelay(0);
 }
 
 
 void Editor::exit() {
 	endwin();
+}
+
+void Editor::status() {
+	move(height, width/2-10);
+	printw("															");
+	move(height, width/2-10);
+	printw("X:%i Y:%i H:%i V:%i", posx, posy, h, v);
+	printw(" || mode: %s", (mode == INSERT ? "insert" : "normal"));
+	move(posy, posx);
+}
+
+void Editor::set_mode(MODE m) {
+	mode = m;
+	if(mode == NORMAL && posx >= buffer.lines[posy].size()) {
+		posx--;
+	}
 }
 
 void Editor::render() {
@@ -53,18 +72,13 @@ void Editor::render() {
 			}
 		}
 	}
-#ifdef DEBUG
-	move(height-1, width/2);
-	printw("														");
-	move(height-1, width/2);
-	printw("X:%i Y:%i H:%i V:%i", posx, posy, h, v);
-#endif
 END:
 	move(posy, posx);
 }
 
 void Editor::update() {
-#define C_MOVE(a, b) this->move_cursor(a, b); return;
+#define C_MOVE(a, b) this->move_cursor(a, b); goto END;
+#define INSERT(c) buffer.lines[posy].value.insert(h+posx, std::string(1, (char)c));C_MOVE(1, 0);this->render();goto END;
 	int ch = getch();
 	switch(ch) {
 		case KEY_DOWN:// move one step down
@@ -76,6 +90,18 @@ void Editor::update() {
 		case KEY_LEFT: // move one step left
 			C_MOVE(-1, 0);
 	}
+	if(ch == 'i' && mode == NORMAL) {
+		set_mode(INSERT);
+		goto END;
+	} else if(mode == INSERT) {
+		if(ch == 27) {
+			set_mode(NORMAL);
+			goto END;
+		} 
+		INSERT(ch);
+	}
+END:
+	this->status();
 }
 
 // pos = right, down
@@ -83,7 +109,9 @@ void Editor::update() {
 void Editor::move_cursor(int x, int y) {
 
 	if(x != 0) {
-		if(posx + x + h >= (int)buffer.lines[posy].size()) return;
+		
+		if(posx + x + h > (int)buffer.lines[posy].size() && mode == INSERT) return;
+		if(posx + x + h >= (int)buffer.lines[posy].size() && mode == NORMAL) return;
 		if(posx + x == -1 && h == 0) return;
 		if(posx+x >= width) {
 			h++;
@@ -92,7 +120,9 @@ void Editor::move_cursor(int x, int y) {
 		} else {
 			posx += x;
 		}
+
 	} else if(y != 0) {
+		
 		if(global_y >= (int)buffer.lines.size()-1 && y == 1) return;
 		if(global_y == 0 && y == -1) return;
 		if(posy >= height-1 && y == 1) {
@@ -111,6 +141,7 @@ void Editor::move_cursor(int x, int y) {
 		if(posx+h >= buffer.lines[posy].size()) {
 			posx = buffer.lines[posy].size()-h-1;
 		}
+
 	}
 	this->render();
 }
