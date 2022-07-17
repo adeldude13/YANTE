@@ -17,16 +17,17 @@ class Editor {
 		void render(), update();
 		void move_cursor(int, int);
 		int moveToLine(bool);
-		void loop();
-		void status();
-		void set_mode(MODE);
-		void DELETE();
+		void status(), set_mode(MODE), DELETE(bool);
+		void command();
+		void execommand(std::string);
+		bool isClosed;
 	private:
 		Buffer buffer;
 		int global_y = 0;
 		int width, height;
 		int h=0, v = 0;
 		int posx=0, posy = 0;
+		bool closed = 0;
 		MODE mode = NORMAL;
 };
 

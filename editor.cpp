@@ -37,6 +37,7 @@ void Editor::init() {
 	getmaxyx(stdscr, height, width);
 	height-=1; // for the status
 	set_escdelay(0);
+	isClosed = false;
 }
 
 
@@ -45,10 +46,16 @@ void Editor::exit() {
 }
 
 void Editor::status() {
-	move(height, width/2-10);
-	printw("															");
-	move(height, width/2-10);
-	printw("X:%i Y:%i H:%i V:%i", posx, posy, h, v);
+	int size = std::to_string(posy+1).size() + std::to_string(posx+1).size() + 22;
+#define CLEAR() do { \
+		for(int i=0; i<size;i++) { \
+			printw(" "); \
+		} \
+	} while(false)
+	move(height, width-size);
+	CLEAR();	
+	move(height, width-size);
+	printw("X:%i Y:%i", posx+1, posy+1);
 	printw(" || mode: %s", (mode == INSERT ? "insert" : "normal"));
 	move(posy, posx);
 }
@@ -76,16 +83,55 @@ END:
 	move(posy, posx);
 }
 
-void Editor::DELETE() {
-	if(posx == 0) {
+void Editor::DELETE(bool isNormal=false) {
+	if(posx == 0 && !isNormal) {
 		return;
 	}
+	if(posx < buffer.lines[posy].size()) {
+		buffer.lines[posy].value.erase(posx-(isNormal ? 0 : 1) , 1);
+	} else if(buffer.lines[posy].size() != 0) {
+		buffer.lines[posy].value.erase(posx-1, 1);	
+	}
+
 	posx--;
-	buffer.lines[posy].value.erase(posx, 1);
+	posx += (posx == -1 ? 1 : 0);
 	this->render();
 }
 
+void Editor::command() {
+	std::string line = "";
+	char c;
+	move(height, 0);
+	addch(':');
+	while((c = getch()) != '\n') {
+		if(c == 27) {
+			move(height, 0);
+			for(int i=0; i<(int)line.size()+1;i++) {
+				printw(" ");
+			}
+			return;
+		}
+		addch(c);
+		line += c;
+	}
+	this->execommand(line);
+	move(height, 0);
+	for(int i=0; i<(int)line.size()+1;i++) {
+		printw(" ");	
+	}
+	move(posy, posx);
+}
+
+void Editor::execommand(std::string cmd) {
+	if(cmd == "w") {
+		// TODO : save the current content to the file
+	} else if(cmd == "q") {
+		isClosed = true;
+	}
+}
+
 void Editor::update() {
+	this->status();
 #define C_MOVE(a, b) this->move_cursor(a, b); goto END;
 #define INSERT(c) buffer.lines[posy].value.insert(h+posx, std::string(1, (char)c));C_MOVE(1, 0);this->render();goto END;
 	int ch = getch();
@@ -101,7 +147,19 @@ void Editor::update() {
 	}
 	// 27 == ESC
 	if(mode == NORMAL) {
-		if(ch == 'i') set_mode(INSERT);
+		if(ch == 'i') { set_mode(INSERT); goto END;} 
+		switch(ch) {
+			case 'j':// move one step down
+				C_MOVE(0, 1);
+			case 'k': // move one step up
+				C_MOVE(0, -1);
+			case 'l':// move one step right
+				C_MOVE(1, 0);
+			case 'h': // move one step left
+				C_MOVE(-1, 0);
+		}
+		if(ch == 'x') DELETE(true);
+		if(ch == ':') command();
 	} else if(mode == INSERT) {
 		if(ch == 27) {
 			set_mode(NORMAL); goto END; 
