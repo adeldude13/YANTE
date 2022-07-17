@@ -55,7 +55,7 @@ void Editor::status() {
 
 void Editor::set_mode(MODE m) {
 	mode = m;
-	if(mode == NORMAL && posx >= buffer.lines[posy].size()) {
+	if(posx > 0 && m == NORMAL) {
 		posx--;
 	}
 }
@@ -76,6 +76,15 @@ END:
 	move(posy, posx);
 }
 
+void Editor::DELETE() {
+	if(posx == 0) {
+		return;
+	}
+	posx--;
+	buffer.lines[posy].value.erase(posx, 1);
+	this->render();
+}
+
 void Editor::update() {
 #define C_MOVE(a, b) this->move_cursor(a, b); goto END;
 #define INSERT(c) buffer.lines[posy].value.insert(h+posx, std::string(1, (char)c));C_MOVE(1, 0);this->render();goto END;
@@ -90,15 +99,17 @@ void Editor::update() {
 		case KEY_LEFT: // move one step left
 			C_MOVE(-1, 0);
 	}
-	if(ch == 'i' && mode == NORMAL) {
-		set_mode(INSERT);
-		goto END;
+	// 27 == ESC
+	if(mode == NORMAL) {
+		if(ch == 'i') set_mode(INSERT);
 	} else if(mode == INSERT) {
 		if(ch == 27) {
-			set_mode(NORMAL);
-			goto END;
-		} 
-		INSERT(ch);
+			set_mode(NORMAL); goto END; 
+		} else if(ch == KEY_BACKSPACE) {
+			DELETE();
+		} else { 
+			INSERT(ch); 
+		}
 	}
 END:
 	this->status();

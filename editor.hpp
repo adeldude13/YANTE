@@ -20,6 +20,7 @@ class Editor {
 		void loop();
 		void status();
 		void set_mode(MODE);
+		void DELETE();
 	private:
 		Buffer buffer;
 		int global_y = 0;
