@@ -17,7 +17,7 @@ class Editor {
 		void render(), update();
 		void move_cursor(int, int);
 		int moveToLine(bool);
-		void status(), set_mode(MODE), DELETE(bool);
+		void status(), set_mode(MODE), DELETE(bool), DELETE_CURR();
 		void command();
 		void execommand(std::string);
 		bool isClosed;

@@ -98,6 +98,17 @@ void Editor::DELETE(bool isNormal=false) {
 	this->render();
 }
 
+void Editor::DELETE_CURR() {
+	if(buffer.lines.size() == 0) {
+		return;
+	}
+	buffer.lines.erase(buffer.lines.begin()+posy);
+	if(posy >= (int)buffer.lines.size()) {
+		posy--;
+	}
+	this->render();
+}
+
 void Editor::command() {
 	std::string line = "";
 	char c;
@@ -160,6 +171,13 @@ void Editor::update() {
 		}
 		if(ch == 'x') DELETE(true);
 		if(ch == ':') command();
+		if(ch=='d') {
+			ch = getch(); // wait till you get another char
+			if(ch == 'd') {
+				DELETE_CURR();
+				goto END;
+			}
+		}
 	} else if(mode == INSERT) {
 		if(ch == 27) {
 			set_mode(NORMAL); goto END; 
