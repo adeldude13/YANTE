@@ -106,6 +106,9 @@ void Editor::DELETE_CURR() {
 	if(posy >= (int)buffer.lines.size()) {
 		posy--;
 	}
+	if(posy == -1) {
+		posy++;
+	}
 	this->render();
 }
 
@@ -144,7 +147,12 @@ void Editor::execommand(std::string cmd) {
 void Editor::update() {
 	this->status();
 #define C_MOVE(a, b) this->move_cursor(a, b); goto END;
-#define INSERT(c) buffer.lines[posy].value.insert(h+posx, std::string(1, (char)c));C_MOVE(1, 0);this->render();goto END;
+#define INSERT(c) do { \
+	if(buffer.lines.size() == 0) { \
+		Line temp; \
+		buffer.lines.push_back(temp); } \
+	buffer.lines[posy].value.insert(h+posx, std::string(1, (char)c));C_MOVE(1, 0);this->render();goto END; \
+} while(0)
 	int ch = getch();
 	switch(ch) {
 		case KEY_DOWN:// move one step down
@@ -175,6 +183,24 @@ void Editor::update() {
 			ch = getch(); // wait till you get another char
 			if(ch == 'd') {
 				DELETE_CURR();
+				goto END;
+			}
+			if(ch == 'j') {
+				DELETE_CURR();
+				DELETE_CURR();
+				goto END;
+			} else if(ch == 'k') {
+				if(posy == 0) goto END;
+				DELETE_CURR();
+				posy--;
+				DELETE_CURR();
+				goto END;
+			} else if(ch == 'l') {
+				DELETE(true);
+				goto END;
+			} else if(ch == 'h') {
+				if(posx == 0) goto END;
+				DELETE();	
 				goto END;
 			}
 		}
@@ -228,7 +254,9 @@ void Editor::move_cursor(int x, int y) {
 		if(posx+h >= buffer.lines[posy].size()) {
 			posx = buffer.lines[posy].size()-h-1;
 		}
-
+		if(posx == -1) {
+			posx++;
+		}
 	}
 	this->render();
 }
