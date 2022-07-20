@@ -84,7 +84,16 @@ END:
 }
 
 void Editor::DELETE(bool isNormal=false) {
-	if(posx == 0 && !isNormal) {
+	if(posx == 0 && !isNormal && posy != 0) {
+		int temp = buffer.lines[posy-1].size();
+		buffer.lines[posy-1].value += buffer.lines[posy].value;
+		posx = temp-1;
+		buffer.lines.erase(buffer.lines.begin()+posy);
+		posy--;
+		global_y--;
+		this->render();
+		return;
+	} else if(posx == 0 && !isNormal) {
 		return;
 	}
 	if(posx < buffer.lines[posy].size()) {
@@ -96,6 +105,29 @@ void Editor::DELETE(bool isNormal=false) {
 	posx--;
 	posx += (posx == -1 ? 1 : 0);
 	this->render();
+}
+
+void Editor::WKEY() {
+	int temp = posy;
+	while(1) {
+		if(posx > buffer.lines[posy].size()) {
+			if(posy >= (int)buffer.lines.size()-1) {
+				return;
+			}
+			posy++;
+			global_y++;
+			posx = 0;
+			break;
+		}
+		if(buffer.lines[posy].value[posx] != ' ') {
+			posx++;
+		} else {
+			break;
+		}
+	}
+	if(posx < buffer.lines[posy].size()-1 && posy == temp) {
+		posx++;
+	}
 }
 
 void Editor::DELETE_CURR() {
@@ -177,41 +209,46 @@ void Editor::update() {
 			case 'h': // move one step left
 				C_MOVE(-1, 0);
 		}
-		if(ch == 'x') DELETE(true);
+		if(ch == 'x') DELETE(true); 
 		if(ch == ':') command();
 		if(ch=='d') {
 			ch = getch(); // wait till you get another char
 			if(ch == 'd') {
 				DELETE_CURR();
-				goto END;
 			}
 			if(ch == 'j') {
 				DELETE_CURR();
 				DELETE_CURR();
-				goto END;
 			} else if(ch == 'k') {
 				if(posy == 0) goto END;
 				DELETE_CURR();
 				posy--;
 				DELETE_CURR();
-				goto END;
 			} else if(ch == 'l') {
 				DELETE(true);
-				goto END;
 			} else if(ch == 'h') {
 				if(posx == 0) goto END;
 				DELETE();	
-				goto END;
 			}
 		}
+		if(ch == 'w') {
+			this->WKEY();
+		}
+		goto END;
 	} else if(mode == INSERT) {
 		if(ch == 27) {
 			set_mode(NORMAL); goto END; 
 		} else if(ch == KEY_BACKSPACE) {
 			DELETE();
-		} else { 
+		} else if(ch == '\n') {
+			Line temp;
+			buffer.lines.insert(buffer.lines.begin()+posy, temp);
+			posy++;
+			this->render();
+		} else {
 			INSERT(ch); 
 		}
+		goto END;
 	}
 END:
 	this->status();

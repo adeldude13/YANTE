@@ -20,6 +20,7 @@ class Editor {
 		void status(), set_mode(MODE), DELETE(bool), DELETE_CURR();
 		void command();
 		void execommand(std::string);
+		void WKEY();
 		bool isClosed;
 	private:
 		Buffer buffer;
