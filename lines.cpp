@@ -6,8 +6,42 @@ std::size_t Line::size() {
 	return content.size();
 }
 
-char Line::operator[](unsigned int i) {
+char &Line::operator[](unsigned int i) {
 	return content[i];
+}
+
+Lines::Lines() {
+	this->addLine("");
+}
+
+
+void Lines::fill(std::string str) {
+	if(head == nullptr) {
+		this->addLine("");
+	}
+	Line *currLine = head;
+	for(std::size_t i=0; i<str.size();i++) {
+		if(str[i] == '\n') {
+			this->addLine("");
+			currLine = this->getNext(currLine);
+		} else {
+			currLine->content += str[i];
+		}
+	}
+}
+
+Line *Lines::getNext(Line *ptr) {
+	if(ptr == nullptr || ptr->next == nullptr) {
+		return nullptr;
+	}
+	return ptr->next;
+}
+
+Line *Lines::getPrev(Line *ptr) {
+	if(ptr == nullptr || ptr->prev == nullptr) {
+		return nullptr;
+	}
+	return ptr->prev;
 }
 
 void Lines::addLine(std::string v) {
@@ -63,3 +97,4 @@ void Lines::printall() {
 	}
 	std::cout << "NULL" << std::endl;
 }
+

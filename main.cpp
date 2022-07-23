@@ -1,11 +1,10 @@
 #include "lines.hpp"
+#include "editor.hpp"
+#include <ncurses.h>
 
 int main() {
-	Lines lines;
-	lines.addLine("test1");
-	lines.addLine("test2");
-	lines.printall();
-	lines.freeall();
-	lines.printall();
+	Editor editor("lmao");
+	getch();
+	editor.cleanup();
 	return 0;
 }

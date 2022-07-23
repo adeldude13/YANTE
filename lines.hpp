@@ -9,16 +9,20 @@ class Line {
 		Line *prev = nullptr;
 		Line *next = nullptr;
 		std::size_t size();
-		char operator[](unsigned int i);
+		char &operator[](unsigned int i);
 };
 
 class Lines {
 	public:
+		Lines();
 		Line *head = nullptr;
 		void addLine(std::string);
 		void deleteLine(Line *);
 		void freeall();
 		void printall();
+		void fill(std::string);
+		Line *getNext(Line *);
+		Line *getPrev(Line *);
 	private:
 		bool clean = false;
 };
